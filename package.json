@@ -12,6 +12,12 @@
     "dev": "npm run dev --workspace @knowrift/frontend",
     "desktop": "npm run build && electron .",
     "desktop:dev": "node desktop/scripts/dev.mjs",
+    "desktop:dev:java": "node desktop/scripts/dev.mjs --java",
+    "services:setup": "node scripts/services.mjs setup",
+    "test:java": "node scripts/services.mjs test-java",
+    "test:agent": "node scripts/services.mjs test-agent",
+    "test:runtime": "node --test tests/runtime.test.mjs",
+    "test:e2e:java": "node tests/java-e2e.mjs",
     "cloud": "npm run start --workspace @knowrift/backend",
     "build": "npm run build --workspace @knowrift/frontend",
     "test": "npm test --workspace @knowrift/backend",
@@ -29,8 +35,7 @@
     },
     "files": [
       "frontend/dist/**/*",
-      "desktop/main.cjs",
-      "desktop/preload.cjs",
+      "desktop/**/*.cjs",
       "desktop/assets/**/*",
       "package.json"
     ],

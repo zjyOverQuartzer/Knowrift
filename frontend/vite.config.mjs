@@ -9,6 +9,7 @@ const projectRoot = fileURLToPath(new URL('../', import.meta.url));
 export default defineConfig({ root: frontendRoot, base: './', plugins: [react(), {
   name: 'zhixi-local-preview',
   async configureServer(server) {
+    if (process.env.ZHIXI_BACKEND_MODE === 'java') return;
     const service = new LearningService(process.env.ZHIXI_HOME || path.join(projectRoot, '.data/preview'));
     if (!service.repo.projects().length) { const p = service.createProject({ name: 'Java 后端学习' }); await service.startSession({ projectId: p.id, topic: 'Java 线程池', demo: true }); }
     server.middlewares.use('/__api', async (req, res) => {

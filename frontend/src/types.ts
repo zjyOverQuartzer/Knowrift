@@ -4,4 +4,12 @@ export type Gap = { id: string; knowledge: string; topic: string; status: string
 export type Project = { id: string; name: string; root: string; archived: boolean };
 export type Snapshot = { projects: Project[]; project: Project | null; settings: Record<string, any>; files: { path: string; size: number }[]; data: { sessions: Session[]; gaps: Gap[]; tasks: Record<string, any>[]; audit: Record<string, any>[]; feedback: Record<string, any>[]; strategies: Record<string, any>[]; memoryCandidates: Record<string, any>[]; memoryPaused: boolean; activeStrategyId: string | null } | null; evaluationCases: Record<string, any>[] };
 export type View = 'workbench' | 'files' | 'memory' | 'prompts' | 'tasks' | 'strategies' | 'settings' | 'audit';
-declare global { interface Window { zhixi?: { platform: string; invoke: (action: string, args?: Record<string, any>) => Promise<{ ok: boolean; data?: any; error?: string; code?: string }> } } }
+declare global { interface Window { zhixi?: {
+  platform: string;
+  invoke: (action: string, args?: Record<string, any>) => Promise<{ ok: boolean; data?: any; error?: string; code?: string }>;
+  getRuntime(): Promise<import('./project-api').RuntimeDescriptor>;
+  retryService(name: import('./project-api').ServiceName): Promise<import('./project-api').RuntimeDescriptor>;
+  projects: import('./project-api').ProjectApi;
+  chooseDirectory(): Promise<string | null>;
+  onRuntimeStatus(listener: (runtime: import('./project-api').RuntimeDescriptor) => void): () => void;
+} } }
