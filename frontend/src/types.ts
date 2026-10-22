@@ -10,6 +10,7 @@ declare global { interface Window { zhixi?: {
   getRuntime(): Promise<import('./project-api').RuntimeDescriptor>;
   retryService(name: import('./project-api').ServiceName): Promise<import('./project-api').RuntimeDescriptor>;
   projects: import('./project-api').ProjectApi;
+  modelSettings: import('./model-api').ModelSettingsApi;
   chooseDirectory(): Promise<string | null>;
   onRuntimeStatus(listener: (runtime: import('./project-api').RuntimeDescriptor) => void): () => void;
 } } }
