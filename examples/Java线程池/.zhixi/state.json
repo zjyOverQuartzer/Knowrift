@@ -1,0 +1,137 @@
+{
+  "sessions": [
+    {
+      "id": "08fb54d0-0de1-43c1-a6ce-501859d00405",
+      "topic": "Java线程池",
+      "createdAt": "2026-10-22T02:35:07.005Z",
+      "updatedAt": "2026-10-22T02:35:07.041Z",
+      "messages": [
+        {
+          "id": "370bd8d9-0b7f-48d8-9cd9-9f5e7308e376",
+          "role": "assistant",
+          "content": "【示例模式：用于体验流程，不代表真实模型诊断】\n\n本轮围绕「Java线程池」检查：概念、成立条件与应用。一次一道问题。\n\n线程池什么时候创建新线程？请说明你对核心线程数、队列和最大线程数的理解。",
+          "time": "2026-10-22T02:35:07.005Z",
+          "kind": "question",
+          "promptRevision": "10317b74e4fdc26597484f309e1da38dd537d908586e48c16e3684d8fc0a624b",
+          "promptScope": "default"
+        },
+        {
+          "id": "37356fb2-7312-4e02-9f6e-7d3547736994",
+          "role": "user",
+          "content": "我希望先根据任务数量推演线程和队列的变化，再归纳规则。",
+          "time": "2026-10-22T02:35:07.024Z",
+          "assisted": false,
+          "pending": false
+        },
+        {
+          "id": "5649b625-a5ea-4157-b9ca-c7e299e6eeb3",
+          "role": "assistant",
+          "content": "已保存这次回答。示例模式只演示追问与记录流程，请切换真实模型获得诊断。\n\n当前为示例流程，回答尚未经过真实模型核对。\n\n已将本轮证据保存到盲点档案。",
+          "time": "2026-10-22T02:35:07.041Z",
+          "kind": "assessment",
+          "promptRevision": "10317b74e4fdc26597484f309e1da38dd537d908586e48c16e3684d8fc0a624b",
+          "promptScope": "default"
+        },
+        {
+          "id": "10c63e9d-dab3-46cb-8540-3a74f786e002",
+          "role": "assistant",
+          "content": "请再补充一个具体场景，并说明「Java线程池」成立时需要哪些条件？",
+          "time": "2026-10-22T02:35:07.041Z",
+          "kind": "question",
+          "promptRevision": "10317b74e4fdc26597484f309e1da38dd537d908586e48c16e3684d8fc0a624b",
+          "promptScope": "default"
+        }
+      ],
+      "status": "completed",
+      "mainIndex": 0,
+      "followUps": 1,
+      "assisted": false,
+      "reviewGapId": null,
+      "demo": true,
+      "promptRevision": "10317b74e4fdc26597484f309e1da38dd537d908586e48c16e3684d8fc0a624b",
+      "promptScope": "default",
+      "summaryPaths": [
+        "summaries/08fb54d0-0de1-43c1-a6ce-501859d00405-1792636507084-038f3b.md"
+      ],
+      "scope": "概念、成立条件与应用"
+    }
+  ],
+  "gaps": [
+    {
+      "id": "82786f4d-230b-42e5-8c1e-e6b1ac451f71",
+      "knowledge": "Java线程池",
+      "topic": "Java线程池",
+      "status": "待确认",
+      "history": [
+        {
+          "time": "2026-10-22T02:35:07.041Z",
+          "sessionId": "08fb54d0-0de1-43c1-a6ce-501859d00405",
+          "question": "【示例模式：用于体验流程，不代表真实模型诊断】\n\n本轮围绕「Java线程池」检查：概念、成立条件与应用。一次一道问题。\n\n线程池什么时候创建新线程？请说明你对核心线程数、队列和最大线程数的理解。",
+          "answer": "我希望先根据任务数量推演线程和队列的变化，再归纳规则。",
+          "assessment": "uncertain",
+          "citedEvidence": "我希望先根据任务数量推演线程和队列的变化，再归纳规则。",
+          "explanation": "当前为示例流程，回答尚未经过真实模型核对。",
+          "assisted": false,
+          "action": "answer",
+          "demo": true
+        }
+      ],
+      "createdAt": "2026-10-22T02:35:07.041Z",
+      "dueAt": "2026-10-22T02:35:07.041Z",
+      "passes": 0
+    }
+  ],
+  "feedback": [],
+  "strategies": [],
+  "tasks": [],
+  "audit": [
+    {
+      "id": "b88eef71-6b55-469d-9817-63cec79d6e6c",
+      "time": "2026-10-22T02:35:07.088Z",
+      "tool": "write_file",
+      "detail": {
+        "path": "summaries/08fb54d0-0de1-43c1-a6ce-501859d00405-1792636507084-038f3b.md",
+        "revision": "5f9f1ad0b4dcbb13af2a8d67b1899c7ac5de49bd11f3b4209360cc1269418bd7"
+      },
+      "status": "success"
+    },
+    {
+      "id": "5cb8d50b-e22f-4b48-9a77-ba660939b73b",
+      "time": "2026-10-22T02:35:06.987Z",
+      "tool": "read_file",
+      "detail": {
+        "path": "MEMORY.md"
+      },
+      "status": "success"
+    },
+    {
+      "id": "a50fbdbd-b352-4d32-83e8-e09a104f777a",
+      "time": "2026-10-22T02:35:06.969Z",
+      "tool": "read_file",
+      "detail": {
+        "path": "PROJECT_PROMPT.md"
+      },
+      "status": "success"
+    },
+    {
+      "id": "e13b7973-19f8-4213-9518-1abf3a446308",
+      "time": "2026-10-22T02:35:06.947Z",
+      "tool": "write_file",
+      "detail": {
+        "path": "references/阅读说明.md",
+        "revision": "15cf519f2c834f1da3af1fbdc18bfbab22646b74666e4009c39ce9b00ef91668"
+      },
+      "status": "success"
+    }
+  ],
+  "memoryCandidates": [
+    {
+      "id": "ea2e18ab-6da8-49f8-8618-8265716dfd8c",
+      "content": "我希望先根据任务数量推演线程和队列的变化，再归纳规则。",
+      "source": "zhixi://session/08fb54d0-0de1-43c1-a6ce-501859d00405",
+      "time": "2026-10-22T02:35:07.024Z"
+    }
+  ],
+  "memoryPaused": false,
+  "activeStrategyId": null
+}

@@ -1,0 +1,13 @@
+services:
+  reminders:
+    build:
+      context: ../..
+      dockerfile: backend/cloud/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:4319:4319"
+    volumes:
+      - zhixi-reminders:/data
+volumes:
+  zhixi-reminders:

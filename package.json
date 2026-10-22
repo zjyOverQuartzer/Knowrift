@@ -1,0 +1,60 @@
+{
+  "name": "knowrift",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Knowrift（知隙）：本地优先的知识盲点学习助手",
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "author": "知隙课程项目",
+  "license": "UNLICENSED",
+  "workspaces": ["frontend", "backend"],
+  "scripts": {
+    "dev": "npm run dev --workspace @knowrift/frontend",
+    "desktop": "npm run build && electron .",
+    "desktop:dev": "node desktop/scripts/dev.mjs",
+    "cloud": "npm run start --workspace @knowrift/backend",
+    "build": "npm run build --workspace @knowrift/frontend",
+    "test": "npm test --workspace @knowrift/backend",
+    "test:e2e": "node tests/e2e.mjs",
+    "test:live": "npm run test:live --workspace @knowrift/backend",
+    "pack": "npm run build && node node_modules/electron/install.js && electron-builder --win nsis --publish never",
+    "pack:dir": "npm run build && node node_modules/electron/install.js && electron-builder --win dir --publish never",
+    "pack:cloud": "powershell -NoProfile -File scripts/package-cloud.ps1"
+  },
+  "build": {
+    "appId": "cn.zhixi.desktop",
+    "productName": "知隙",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "frontend/dist/**/*",
+      "desktop/main.cjs",
+      "desktop/preload.cjs",
+      "desktop/assets/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "electronDist": "node_modules/electron/dist",
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "desktop/assets/icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "dependencies": {
+    "@knowrift/backend": "0.1.0"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.5.0",
+    "playwright": "^1.64.1"
+  }
+}
