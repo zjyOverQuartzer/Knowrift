@@ -4,6 +4,32 @@
 
 桌面端采用 Electron、React 和 Vite；独立的 Fastify 提醒服务通过 SMTP 发送预备邮件。学习资料和模型密钥保留在本机，云端只处理已同步的提醒。
 
+正在进行 Java/Python 渐进重构。原有命令继续运行 Node.js 版本；新版开发入口提供 Java + SQLite 项目管理、多套模型配置，以及 Python 执行的真实连接测试。学习业务尚未迁移。详见 [首批重构实施与验收](docs/首批重构实施与验收.md) 和 [第二批模型配置实施与验收](docs/第二批模型配置实施与验收.md)。
+
+在项目根目录的 PowerShell 中准备和启动新版：
+
+```powershell
+$OutputEncoding = [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
+$env:KNOWRIFT_JAVA_HOME = 'D:\java\jdk-17'
+$env:KNOWRIFT_PYTHON = 'D:\SoftWareLearn\Miniconda3\python.exe'
+npm run services:setup
+npm run desktop:dev:java
+```
+
+以上路径对应本次开发机，其他电脑需替换为自己的 JDK 17 和 Python 3.14 路径。安装使用项目内虚拟环境，不修改全局 Java、Python 配置。如当前 pip 镜像不可访问，可在当前 PowerShell 会话设置 `$env:PIP_INDEX_URL = 'https://pypi.org/simple'` 后重试准备命令。Java 依赖使用本机 Maven 下载。
+
+新版默认使用 `.data/java-dev`，`ZHIXI_HOME` 可指定独立目录；发现旧版 `projects.json` 时拒绝直接接管。关闭窗口仍留在托盘，通过“完全退出”关闭两个本机服务。本批未更新 Windows 安装包，原有安装包仍对应旧版。
+
+新版打开“设置 → 新增配置”，填写配置名称、接口协议、基础地址和提供商的模型 ID。需要密钥时将“密钥操作”切换为“输入新密钥”；本机免密服务选择“清除密钥 / 本机免密”。保存后可分别点击“测试连接”和“设为当前配置”。配置全局共享，测试其他配置不会更改当前选择；重启后配置、密钥和当前选择保留，测试结果需重新获取。
+
+| 新版协议 | 基础地址示例 | 程序追加的路径 |
+| --- | --- | --- |
+| Chat Completions 兼容 | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `/chat/completions` |
+| Anthropic Messages | `https://api.anthropic.com/v1` | `/messages` |
+| Ollama 原生 Chat | `http://127.0.0.1:11434` | `/api/chat` |
+
+新版只使用界面保存的密钥，不自动读取环境变量或旧版设置。每套密钥独立加密，已保存值不回显。Python 暂时不可用时仍可保存和切换配置；连接测试需要两个服务就绪，测试会向所填服务发起一次真实推理，可能产生调用费用。
+
 ## 工程目录
 
 项目根目录为 `Knowrift`，前后端分别维护 package.json，使用 npm workspaces 统一安装和执行命令。
@@ -17,7 +43,9 @@ Knowrift/
     tsconfig.json
     package.json
     dist/               # 前端构建产物
-  backend/              # Node.js 后端
+  backend/              # 旧版 Node.js 业务及新版本机服务
+    java/               # JDK 17、项目与模型配置、SQLite
+    agent/              # Python 模型调用、独立虚拟环境
     core/               # 诊断、模型、文件、记忆、导出和策略逻辑
     cloud/              # 独立 HTTP 提醒服务、Docker 和部署说明
     fixtures/           # 应用内置的评测样例
@@ -39,7 +67,7 @@ Knowrift/
   package-lock.json     # 整个工程的依赖锁文件
 ```
 
-前端负责显示和交互，通过 IPC 调用桌面主进程。桌面入口只负责窗口、系统凭据、文件选择、打印与系统通知等适配，学习业务由 `@knowrift/backend` 提供。`backend/cloud` 可以部署为独立的提醒服务。
+前端负责显示和交互，通过 IPC 调用桌面主进程。桌面入口负责系统适配、凭据与本机服务管理；旧版学习业务由 `@knowrift/backend` 提供，新版配置由 Java 保存，模型请求由 Python 执行。`backend/cloud` 可以部署为独立的提醒服务。
 
 根目录执行一次 `npm ci` 即可安装全部工作区依赖。也可单独执行 `npm run dev --workspace @knowrift/frontend`、`npm test --workspace @knowrift/backend`。增加依赖时指定对应 workspace，避免前后端依赖重新混在根配置中。
 
@@ -72,7 +100,7 @@ npm run pack:cloud   # 构建独立云端服务部署压缩包
 
 浏览器预览的数据保存在 `.data/preview`，与桌面工作区独立。安全密钥保存、本地目录选择和 PDF 导出在桌面端完成。预览服务只监听本机，不用于公网部署。
 
-## 配置百炼
+## 配置百炼（旧版 Node.js）
 
 在“设置 → 模型服务”中关闭示例模式，填写并保存：
 
