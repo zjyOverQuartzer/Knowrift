@@ -119,7 +119,7 @@ class ProjectStoreTest {
     @Test void newerSchemaIsNotDowngraded() throws Exception {
         Path home = temp.resolve("home");
         try (var store = new ProjectStore(home)) { assertTrue(store.list().isEmpty()); }
-        Database.use(home.resolve("app.db"), true, jdbc -> { jdbc.execute("PRAGMA user_version=2"); return null; });
+        Database.use(home.resolve("app.db"), true, jdbc -> { jdbc.execute("PRAGMA user_version=3"); return null; });
         assertEquals("SCHEMA_UNSUPPORTED", assertThrows(ApiException.class, () -> new ProjectStore(home)).code);
     }
     @Test void unreadableProjectIsIsolatedAndRecoversAfterPermissionsRestore() throws Exception {

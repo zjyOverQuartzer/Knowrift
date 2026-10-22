@@ -17,6 +17,7 @@
     "test:java": "node scripts/services.mjs test-java",
     "test:agent": "node scripts/services.mjs test-agent",
     "test:runtime": "node --test tests/runtime.test.mjs",
+    "test:model-settings": "node --test tests/model-settings.test.mjs",
     "test:e2e:java": "node tests/java-e2e.mjs",
     "cloud": "npm run start --workspace @knowrift/backend",
     "build": "npm run build --workspace @knowrift/frontend",

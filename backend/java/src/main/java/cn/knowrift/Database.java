@@ -32,9 +32,21 @@ final class Database {
     }
     static void initialize(Path file, String kind) {
         use(file, false, jdbc -> { jdbc.execute("PRAGMA journal_mode=WAL"); return null; });
-        int supported = 1;
+        int supported = "app".equals(kind) ? 2 : 1;
         int current = use(file, false, jdbc -> jdbc.queryForObject("PRAGMA user_version", Integer.class));
         if (current > supported) throw new ApiException("SCHEMA_UNSUPPORTED", 409, "数据库版本较新，请使用兼容版本打开");
+        if ("app".equals(kind) && current == 1) {
+            try {
+                Path backups = file.getParent().resolve("backups");
+                Files.createDirectories(backups);
+                Path backup = backups.resolve("app-v1-" + java.util.UUID.randomUUID() + ".db");
+                use(file, false, jdbc -> { jdbc.execute("VACUUM INTO '" + backup.toString().replace("'", "''") + "'"); return null; });
+                String check = use(backup, false, jdbc -> jdbc.queryForObject("PRAGMA integrity_check", String.class));
+                if (!"ok".equals(check)) throw new IllegalStateException("Invalid backup");
+            } catch (java.io.IOException | RuntimeException error) {
+                throw new ApiException("MIGRATION_BACKUP_FAILED", 503, "升级前备份失败，数据库未升级，请检查数据目录权限与磁盘空间");
+            }
+        }
         use(file, true, jdbc -> {
             int version = jdbc.queryForObject("PRAGMA user_version", Integer.class);
             for (int next = version + 1; next <= supported; next++) {

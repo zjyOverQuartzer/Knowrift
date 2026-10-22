@@ -89,6 +89,12 @@ class LocalServices extends EventEmitter {
     try { return await this.requestEntry(entry, route, method, body, timeoutMs); }
     catch (error) { if (!error.code) throw Object.assign(new Error('项目服务连接失败，请重试'), { code: 'SERVICE_UNAVAILABLE' }); throw error; }
   }
+  async testModel(id, expectedRevision, apiKey) {
+    const peer = this.entries.get('python');
+    if (peer?.state !== 'ready') throw Object.assign(new Error('智能服务尚未就绪，请检查状态后重试'), { code: 'SERVICE_UNAVAILABLE' });
+    return this.request(`/internal/model-profiles/${encodeURIComponent(id)}/test`, 'POST', { expectedRevision, apiKey,
+      peer: { port: peer.port, token: peer.token, instanceId: peer.instanceId, protocolVersion: 1 } }, 70000);
+  }
   async stopEntry(entry) {
     const child = entry.child;
     if (!child?.pid || child.exitCode !== null || child.signalCode !== null) return;

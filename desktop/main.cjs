@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, shell, safeStorage, Tray, Menu, nat
 const fs = require('node:fs');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const { secureStore: createSecureStore } = require('./runtime/credentials.cjs');
 let window, service, quitting = false, tray;
 let localServices, shutdownStarted = false, shutdownComplete = false;
 const backendMode = process.env.ZHIXI_BACKEND_MODE === 'java' ? 'java' : 'legacy';
@@ -16,27 +17,7 @@ app.on('second-instance', () => { if (window) { window.show(); window.focus(); }
 app.setAppUserModelId('cn.zhixi.desktop');
 
 async function secureStore(home) {
-  const file = path.join(home, 'credentials.json');
-  const read = () => fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
-  const available = () => safeStorage.isAsyncEncryptionAvailable ? safeStorage.isAsyncEncryptionAvailable() : Promise.resolve(safeStorage.isEncryptionAvailable());
-  return {
-    async get(name) {
-      const data = read(); if (!data[name]) return '';
-      if (!await available()) throw new Error('系统安全凭据服务不可用');
-      const value = Buffer.from(data[name], 'base64');
-      if (!safeStorage.decryptStringAsync) return safeStorage.decryptString(value);
-      const decrypted = await safeStorage.decryptStringAsync(value);
-      return typeof decrypted === 'string' ? decrypted : decrypted.result;
-    },
-    async set(name, value) {
-      if (!await available()) throw new Error('系统安全凭据服务不可用，密钥未保存');
-      const data = read();
-      if (!value) delete data[name];
-      else data[name] = (await (safeStorage.encryptStringAsync ? safeStorage.encryptStringAsync(value) : Promise.resolve(safeStorage.encryptString(value)))).toString('base64');
-      fs.mkdirSync(home, { recursive: true });
-      const temp = `${file}.tmp`; fs.writeFileSync(temp, JSON.stringify(data), { mode: 0o600 }); fs.renameSync(temp, file);
-    }
-  };
+  return createSecureStore(home, safeStorage);
 }
 async function printPdf(html) {
   const printWindow = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } });
@@ -69,7 +50,7 @@ function trustedSender(event) {
   const trusted = origin === pathToFileURL(path.join(__dirname, '../frontend/dist/index.html')).href || (devUrl && new URL(origin).origin === new URL(devUrl).origin);
   if (event.sender !== window?.webContents || !trusted) throw new Error('拒绝未知页面请求');
 }
-const runtime = () => ({ mode: backendMode, capabilities: { projectManagement: true, learning: backendMode === 'legacy', importProject: backendMode === 'legacy', export: backendMode === 'legacy' }, services: localServices?.status() || {} });
+const runtime = () => ({ mode: backendMode, capabilities: { projectManagement: true, modelSettings: true, learning: backendMode === 'legacy', importProject: backendMode === 'legacy', export: backendMode === 'legacy' }, services: localServices?.status() || {} });
 function registerBridge(channel, handler) {
   ipcMain.handle(channel, async (event, ...args) => {
     try { trustedSender(event); return { ok: true, data: await handler(...args) }; }
@@ -90,6 +71,17 @@ app.whenReady().then(async () => {
     const commands = serviceCommands();
     if (fs.existsSync(path.join(home, 'projects.json'))) commands.java = { error: '该工作区包含旧版登记数据，请选择独立的新版工作区后重新启动' };
     localServices = new LocalServices(commands, home);
+    const { ModelSettings } = require('./runtime/model-settings.cjs');
+    const modelSettings = new ModelSettings(localServices, await secureStore(home));
+    localServices.on('status', () => { if (localServices.status().java?.state === 'ready') modelSettings.reconcile().catch(() => {}); });
+    registerBridge('zhixi:model-settings', (action, args = {}) => {
+      if (action === 'list') return modelSettings.list();
+      if (action === 'save') return modelSettings.save(args);
+      if (action === 'remove') return modelSettings.remove(args.id, args.expectedRevision);
+      if (action === 'activate') return modelSettings.activate(args.profileId);
+      if (action === 'test') return modelSettings.test(args.id, args.expectedRevision);
+      throw Object.assign(new Error('模型配置操作无效'), { code: 'INVALID_INPUT' });
+    });
     localServices.on('status', () => { if (window && !window.isDestroyed()) window.webContents.send('zhixi:runtime-status', runtime()); });
     registerBridge('zhixi:projects', async (action, args = {}) => {
       if (action === 'list') return localServices.request('/api/v1/projects');

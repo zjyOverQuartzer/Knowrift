@@ -58,9 +58,11 @@ public class LocalApplication {
     }
     @RestController static class Api {
         private final ProjectStore projects;
-        Api(ProjectStore projects) { this.projects = projects; }
+        private final ModelTests tests;
+        Api(ProjectStore projects, ModelTests tests) { this.projects = projects; this.tests = tests; }
         @GetMapping("/health/ready") Map<String,Object> ready() { return Map.of("ready", true, "service", "java", "instanceId", bootstrap.get("instanceId"), "protocolVersion", 1); }
         @PostMapping("/internal/shutdown") Map<String,Object> shutdown() {
+            tests.close();
             Thread exit = new Thread(() -> { try { Thread.sleep(100); } catch (InterruptedException ignored) { Thread.currentThread().interrupt(); } System.exit(0); }, "requested-shutdown");
             exit.setDaemon(true); exit.start(); return Map.of("stopping", true);
         }

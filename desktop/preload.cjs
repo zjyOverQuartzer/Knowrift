@@ -12,6 +12,13 @@ contextBridge.exposeInMainWorld('zhixi', {
     patch: (id, patch) => unwrap(ipcRenderer.invoke('zhixi:projects', 'patch', { id, patch })),
     openFolder: id => unwrap(ipcRenderer.invoke('zhixi:projects', 'openFolder', { id }))
   },
+  modelSettings: {
+    list: () => unwrap(ipcRenderer.invoke('zhixi:model-settings', 'list')),
+    save: input => unwrap(ipcRenderer.invoke('zhixi:model-settings', 'save', input)),
+    remove: (id, expectedRevision) => unwrap(ipcRenderer.invoke('zhixi:model-settings', 'remove', { id, expectedRevision })),
+    activate: profileId => unwrap(ipcRenderer.invoke('zhixi:model-settings', 'activate', { profileId })),
+    test: (id, expectedRevision) => unwrap(ipcRenderer.invoke('zhixi:model-settings', 'test', { id, expectedRevision }))
+  },
   chooseDirectory: () => unwrap(ipcRenderer.invoke('zhixi:choose-directory')),
   onRuntimeStatus: listener => { const handler = (_event, status) => listener(status); ipcRenderer.on('zhixi:runtime-status', handler); return () => ipcRenderer.removeListener('zhixi:runtime-status', handler); }
 });
