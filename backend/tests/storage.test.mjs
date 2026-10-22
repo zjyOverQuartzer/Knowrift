@@ -8,6 +8,20 @@ import { LearningService } from '../core/service.mjs';
 import { toHtml, toDocx } from '../core/export.mjs';
 
 const fixture = () => fs.mkdtempSync(path.join(os.tmpdir(), 'zhixi-test-'));
+test('旧版拒绝创建和导入 SQLite 项目及未完成初始化目录', () => {
+  const newHome = fixture(); fs.writeFileSync(path.join(newHome, 'app.db'), 'preserve-new-workspace');
+  assert.throws(() => new LearningService(newHome), { code: 'DATA_ROOT_CONFLICT' });
+  assert.equal(fs.existsSync(path.join(newHome, 'projects.json')), false);
+  assert.equal(fs.readFileSync(path.join(newHome, 'app.db'), 'utf8'), 'preserve-new-workspace');
+  const service = new LearningService(fixture(), { environmentKey: '' });
+  for (const marker of ['project.db', 'creating.id']) {
+    const root = fixture(); fs.mkdirSync(path.join(root, '.zhixi')); fs.writeFileSync(path.join(root, '.zhixi', marker), 'preserve');
+    assert.throws(() => service.createProject({ name: '混用', directory: root }), { code: 'DIRECTORY_CONFLICT' });
+    assert.throws(() => service.importProject({ directory: root }), { code: 'DIRECTORY_CONFLICT' });
+    assert.equal(fs.readFileSync(path.join(root, '.zhixi', marker), 'utf8'), 'preserve');
+    assert.equal(fs.existsSync(path.join(root, '.zhixi/state.json')), false);
+  }
+});
 test('文件工具拒绝越界、内部目录及外部链接', () => {
   const root = fixture(); const outside = fixture(); fs.writeFileSync(path.join(outside, 'secret.md'), 'private'); const files = new WorkspaceFiles(root);
   assert.throws(() => files.read('../secret.md'), /内部|超出/);
