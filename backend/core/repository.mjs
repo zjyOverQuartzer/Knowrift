@@ -5,7 +5,9 @@ import { id, stamp, readJson, saveJson, atomicWrite, WorkspaceFiles, fault } fro
 export const EMPTY_PROJECT = { sessions: [], gaps: [], feedback: [], strategies: [], tasks: [], audit: [], memoryCandidates: [], memoryPaused: false, activeStrategyId: null };
 export class Repository {
   constructor(home) {
-    this.home = path.resolve(home); fs.mkdirSync(this.home, { recursive: true });
+    this.home = path.resolve(home);
+    if (fs.existsSync(path.join(this.home, 'app.db'))) throw fault('该工作区属于新版项目服务，请为旧版选择独立工作区', 'DATA_ROOT_CONFLICT');
+    fs.mkdirSync(this.home, { recursive: true });
     fs.mkdirSync(path.join(this.home, 'personal'), { recursive: true });
     this.registryFile = path.join(this.home, 'projects.json');
   }
@@ -23,6 +25,7 @@ export class Repository {
     fs.mkdirSync(root, { recursive: true });
     if (this.projects().some(p => fs.existsSync(p.root) && fs.realpathSync(p.root) === fs.realpathSync(root))) throw fault('该目录已经属于一个项目');
     if (fs.existsSync(path.join(root, '.zhixi', 'state.json'))) throw fault('该目录已有知隙数据，请通过导入现有项目恢复');
+    if (fs.existsSync(path.join(root, '.zhixi', 'project.db')) || fs.existsSync(path.join(root, '.zhixi', 'creating.id'))) throw fault('该目录属于新版项目，请使用新版项目服务打开', 'DIRECTORY_CONFLICT');
     const project = { id: projectId, name: name.trim(), root: fs.realpathSync(root), archived: false, createdAt: stamp() };
     for (const folder of ['summaries', 'notes', 'references']) fs.mkdirSync(path.join(root, folder), { recursive: true });
     saveJson(path.join(root, '.zhixi', 'state.json'), EMPTY_PROJECT);
@@ -31,6 +34,7 @@ export class Repository {
   }
   import(root) {
     root = fs.realpathSync(root);
+    if (fs.existsSync(path.join(root, '.zhixi', 'project.db')) || fs.existsSync(path.join(root, '.zhixi', 'creating.id'))) throw fault('该目录包含新版项目数据，不能导入旧版', 'DIRECTORY_CONFLICT');
     if (!fs.existsSync(path.join(root, '.zhixi', 'state.json'))) throw fault('目录中没有知隙项目');
     const known = this.projects().find(p => p.root === root); if (known) return known;
     const project = { id: id(), name: path.basename(root), root, archived: false, createdAt: stamp() };

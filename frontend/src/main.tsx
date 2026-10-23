@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
-import { AppProvider } from './state';
+import { Bootstrap } from './Bootstrap';
 import './styles.css';
-createRoot(document.getElementById('root')!).render(<React.StrictMode><AppProvider><App/></AppProvider></React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<React.StrictMode><Bootstrap/></React.StrictMode>);

@@ -11,3 +11,8 @@ test-results/
 .DS_Store
 .idea/
 *.iml
+target/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
